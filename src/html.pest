@@ -1,26 +1,68 @@
+document = {
+	doctype? ~ element
+}
 element = {
-tag ~ element+ ~ closetag |
-tag ~ text* ~ element+ ~ text* ~ closetag |
-tag ~ text+ ~ closetag 
+	WS* ~ NL* ~ ( comment | tag | text )+ ~ WS* ~ NL* |
+	WS+ |
+	NL+
 }
 
-attrs = {
-   	" " ~ ASCII_ALPHA+ ~ "=" ~ "\"" ~ ASCII_ALPHA+ ~ "\""
+WS = _{ " " | "\t" }
+NL = _{ "\n" | "\r" }
+
+doctype = {
+	"<!DOCTYPE" ~ WS* ~ doctype_type ~ ">"
 }
 
-text = @{
-(!(">" | "<") ~ ANY)+
+doctype_type = {
+	(!(">" | NL) ~ ANY)*
+}
+
+comment = {
+	"<!--" ~ comment_content ~ "-->"
+}
+
+comment_content = {
+	(!("-->") ~ ANY)*
 }
 
 tag = {
-"<" ~ (!("/")) ~ tagname ~ attrs* ~ ">"
+	insides |
+	single
 }
 
-closetag = {
-"<" ~ "/" ~ tagname ~ ">"
+single = {
+	"<" ~ tagname ~ attr* ~ WS* ~ "/"? ~ ">"
 }
 
 tagname = @{
-(!(">" | "<" | "/" | " ") ~ ANY)+
+	(!("<" | ">" | "/" | "!" | WS) ~ ASCII)+
 }
 
+text = {
+	(!("<" | ">") ~ ANY)+
+}
+
+attr = {
+	WS* ~ attrname ~ "=" ~ "\"" ~ attrval ~ "\""
+}
+
+attrname = {
+	(!("\"" | "<" | ">" | WS | NL) ~ ASCII_ALPHA)+
+}
+
+attrval = {
+	(!("\"" | "<" | ">" | NL) ~ ANY)*
+}
+
+closetag = {
+	"</" ~ tagname ~ ">"
+}
+
+opentag = {
+	"<" ~ tagname ~ attr* ~ WS* ~ ">"
+}
+
+insides = {
+	opentag ~ element* ~ closetag
+}
