@@ -1,0 +1,8 @@
+[package]
+name = "rust_bucket"
+version = "0.1.0"
+authors = ["carlschubert <carl.schubert@gmail.com>"]
+
+[dependencies]
+pest = "2.0.2"
+pest_derive = "2.0.1"

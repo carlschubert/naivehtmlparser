@@ -1,0 +1,26 @@
+element = {
+tag ~ element+ ~ closetag |
+tag ~ text* ~ element+ ~ text* ~ closetag |
+tag ~ text+ ~ closetag 
+}
+
+attrs = {
+   	" " ~ ASCII_ALPHA+ ~ "=" ~ "\"" ~ ASCII_ALPHA+ ~ "\""
+}
+
+text = @{
+(!(">" | "<") ~ ANY)+
+}
+
+tag = {
+"<" ~ (!("/")) ~ tagname ~ attrs* ~ ">"
+}
+
+closetag = {
+"<" ~ "/" ~ tagname ~ ">"
+}
+
+tagname = @{
+(!(">" | "<" | "/" | " ") ~ ANY)+
+}
+
