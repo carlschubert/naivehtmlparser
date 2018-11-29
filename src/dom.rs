@@ -95,22 +95,33 @@ impl fmt::Debug for Element {
     }
 }
 
-pub fn pretty_print(n: &Node, indent_size: usize) {
+pub fn pretty_print<T>(n: &T, mut indent_size: usize)
+where
+    T: Tree
+{
     let indent = (0..indent_size).map(|_| " ").collect::<String>();
 
-    match n.node_type {
-        NodeType::Doctype(ref e) => println!("doctype:{}", e),
-        NodeType::Element(ref e) => println!("{}{:?}", indent, e),
-        NodeType::Text(ref t) => println!("{}{}", indent, t),
-        NodeType::Comment(ref c) => println!("{}<!--{}-->", indent, c),
+    match n.tree() {
+        Node::Doctype(ref e) => println!("{}<!DOCTYPE {}>", indent, e),
+        Node::Element(ref e) => {
+            if e.0.tag_name != "NaiveHTMLParserDocument" {
+                println!("{}<{}>", indent, e.0.tag_name);
+                indent_size = indent_size + 2;
+            }
+            for child in e.1.iter() {
+                pretty_print(child, indent_size);
+            }
+        }
+        Node::Text(ref t) => println!("{}{}", indent, t),
+        Node::Comment(ref c) => println!("{}<!--{}-->", indent, c),
     }
 
-    for child in n.children.iter() {
-        pretty_print(&child, indent_size + 2);
-    }
-
-    match n.node_type {
-        NodeType::Element(ref e) => println!("{}<{}/>", indent, e.tag_name),
+    match n.tree() {
+        Node::Element(ref e) => {
+            if e.0.tag_name != "NaiveHTMLParserDocument" {
+                println!("{}</{}>", indent, e.0.tag_name);
+            }
+        }
         _ => {}
     }
 }
