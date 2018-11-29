@@ -3,7 +3,7 @@ extern crate  rust_bucket;
 use rust_bucket::*;
 use std::fs;
 use rust_bucket::html_parser::parse_html_file;
-use rust_bucket::dom::{Attrs, ElementProps, Node, NodeType};
+use rust_bucket::dom::{Attrs, Element, Node};
 
 
 fn main() {

@@ -1,4 +1,4 @@
-use dom::{Attrs, ElementProps, Node, NodeType};
+use dom::{Attrs, Element, Node};
 
 use pest::Parser;
 

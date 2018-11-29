@@ -3,34 +3,58 @@ use dom::*;
 
 #[test]
 fn twoplustwo() {
-    let tree = Node::new(
-        NodeType::Doctype("html".to_string()),
-        vec![Node::new(
-            NodeType::Element(
-                ElementProps::new("html", None)
-            ), vec![
-                Node::new(
-                    NodeType::Element(
-                        ElementProps::new("body", None)
-                    ),
+    let tree = Document::Strict((
+        Node::Doctype("html".to_string()),
+        Node::Element((
+            Element::new("html", None),
+            vec![
+                Node::Element((
+                    Element::new("body", None),
                     vec![
-                        Node::new(
-                            NodeType::Element(
-                                ElementProps::new("h1", None)
-                            ),
-                        vec![
-                            Node::new(
-                                NodeType::Text("Hello World".to_string()),
-                                vec![],
-                            )
-                        ])
-                    ],
-                ),
+                        Node::Element((
+                            Element::new("h1", None),
+                            vec![
+                                Node::Text("Hello Word".to_string())
+                            ]
+                        )),
+                        Node::Element((
+                            Element::new("p", None),
+                            vec![
+                                Node::Text("Foo Bar".to_string())
+                            ]
+                        ))
+                    ]
+                ))
             ]
-        )
-        ]);
+        ))
+    ));
+        // ,
+        // vec![Node::new(
+        //     NodeType::Element(
+        //         ElementProps::new("html", None)
+        //     ), vec![
+        //         Node::new(
+        //             NodeType::Element(
+        //                 ElementProps::new("body", None)
+        //             ),
+        //             vec![
+        //                 Node::new(
+        //                     NodeType::Element(
+        //                         ElementProps::new("h1", None)
+        //                     ),
+        //                 vec![
+        //                     Node::new(
+        //                         NodeType::Text("Hello World".to_string()),
+        //                         vec![],
+        //                     )
+        //                 ])
+        //             ],
+        //         ),
+        //     ]
+        // )
+        // ]);
     println!("------------------\n");
-    pretty_print(&tree, 2);
+    pretty_print(&tree, 0);
     println!("\n------------------\n");
     assert!(false);
 }
