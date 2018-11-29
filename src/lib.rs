@@ -9,11 +9,5 @@ use self::html_parser::parse_html_file;
 use std::fs;
 
 
-
 #[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+mod tests;
