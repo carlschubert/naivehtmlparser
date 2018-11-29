@@ -2,7 +2,7 @@ use dom::{Attrs, ElementProps, Node, NodeType};
 
 use pest::Parser;
 
-use pest::iterators::Pair;
+use pest::iterators::{Pair, Pairs};
 
 use pest::error::Error;
 
@@ -11,12 +11,15 @@ use pest::error::Error;
 pub struct HTMLParser;
 
 pub fn parse_html_file(file: &str) -> Result<Node, Error<Rule>> {
-    let html = HTMLParser::parse(Rule::element, file)?.next().unwrap();
+    let html = HTMLParser::parse(Rule::document, file)?;
     // println!("{:#?}", html);
-    let nodes = parse_value(html);
+    let nodes = parse_pairs(html);
     // println!("{:#?}", nodes);
-    Ok(nodes)
+    nodes
+}
 
+fn parse_pairs(pairs: Pairs<Rule>) -> Result<Node, Error<Rule>> {
+    Ok(Node::new(NodeType::Text("Whatever man".to_string()), vec![]))
 }
 
 fn parse_value(pair: Pair<Rule>) -> Node {

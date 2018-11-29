@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt;
+use std::convert::AsRef;
 
 pub struct Node {
     children: Vec<Node>,
@@ -25,6 +26,7 @@ impl fmt::Debug for Node {
 There are twelve different node types.  I will start with the most common.
 */
 pub enum NodeType {
+    Doctype(String),
     Text(String),
     Element(ElementProps),
     Comment(String),
@@ -33,7 +35,7 @@ pub enum NodeType {
 impl fmt::Debug for NodeType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            NodeType::Text(t) | NodeType::Comment(t) => write!(f, "TextType: {}", t),
+            NodeType::Text(t) | NodeType::Comment(t) | NodeType::Doctype(t) => write!(f, "TextType: {}", t),
             NodeType::Element(e) => write!(f, "ElementType: {:?}", e),
         }
     }
@@ -49,9 +51,12 @@ pub struct ElementProps {
 }
 
 impl ElementProps {
-    pub fn new(tag_name: String, attributes: Option<Attrs>) -> ElementProps {
+    pub fn new<T>(tag_name: T, attributes: Option<Attrs>) -> ElementProps
+    where
+        T: AsRef<str>
+    {
         ElementProps {
-            tag_name,
+            tag_name: tag_name.as_ref().to_string(),
             attributes,
         }
     }
@@ -86,6 +91,7 @@ pub fn pretty_print(n: &Node, indent_size: usize) {
     let indent = (0..indent_size).map(|_| " ").collect::<String>();
 
     match n.node_type {
+        NodeType::Doctype(ref e) => println!("doctype:{}", e),
         NodeType::Element(ref e) => println!("{}{:?}", indent, e),
         NodeType::Text(ref t) => println!("{}{}", indent, t),
         NodeType::Comment(ref c) => println!("{}<!--{}-->", indent, c),
