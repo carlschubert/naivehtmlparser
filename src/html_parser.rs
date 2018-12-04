@@ -14,6 +14,7 @@ pub struct HTMLParser;
 
 pub fn parse_document(file: &str) -> Result<Document, Error> {
     let html: Vec<Pair<Rule>> = HTMLParser::parse(Rule::document, file)?.collect();
+
     if html.len() > 2 {
         return Err(invalid_html());
     }
@@ -27,6 +28,7 @@ pub fn parse_document(file: &str) -> Result<Document, Error> {
             Rule::doctype => doctype = Node::Doctype(html[i].as_str().to_string()),
             _ => return Err(invalid_html()),
         }
+
         i += 1;
         match html[i].as_rule() {
             Rule::element => root = parse_pair(html[i].clone())?,
@@ -34,14 +36,11 @@ pub fn parse_document(file: &str) -> Result<Document, Error> {
         }
         Ok(Document::Strict((doctype, root)))
     } else {
-
-        let mut i = 0;
-
+        let i = 0;
         match html[i].as_rule() {
-            Rule::element => root = parse_pair(html[i].clone())?,
+            Rule::document => root = parse_pair(html[i].clone())?,
             _ => return Err(invalid_html()),
         }
-
         Ok(Document::Quirks(root))
     }
 }
@@ -56,9 +55,9 @@ fn parse_pairs(pairs: Pairs<Rule>) -> Result<Node, Error> {
     // println!("pairs {:#?}", &pairs);
     // println!("----------------------");
 
-    let mut foo;
-    for pair in pairs {
-        foo = match pair.as_rule() {
+
+
+        match pair.as_rule() {
             Rule::element => {
                 // println!("{:?} {}", pair.as_rule(), pair.as_str());
 
