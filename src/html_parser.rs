@@ -4,47 +4,53 @@ use pest::Parser;
 
 use pest::iterators::{Pair, Pairs};
 
-use pest::error::Error;
+use errors::Error;
+
+use errors::invalid_html;
 
 #[derive(Parser)]
 #[grammar = "html.pest"]
 pub struct HTMLParser;
 
-fn parse_document(file: &str) -> Result<Document, Error<Rule>> {
+pub fn parse_document(file: &str) -> Result<Document, Error> {
     let html: Vec<Pair<Rule>> = HTMLParser::parse(Rule::document, file)?.collect();
     if html.len() > 2 {
-        println!("Oops shouldn't happen");
+        return Err(invalid_html());
     }
-    let doctype: Node;
     let root: Node;
-    let mut i = 0;
     if html.len() == 2 {
+        let doctype: Node;
+
+        let mut i = 0;
+
         match html[i].as_rule() {
             Rule::doctype => doctype = Node::Doctype(html[i].as_str().to_string()),
-            _ => {
-                println!("Oops shouldn't happen");
-            }
+            _ => return Err(invalid_html()),
         }
         i += 1;
-    }
-    match html[i].as_rule() {
-        Rule::element => root = parse_pair(html[i])?,
-        _ => {
-            println!("Oops shouldn't happen");
+        match html[i].as_rule() {
+            Rule::element => root = parse_pair(html[i].clone())?,
+            _ => return Err(invalid_html()),
         }
-    }
-    if html.len() == 2 {
         Ok(Document::Strict((doctype, root)))
     } else {
+
+        let mut i = 0;
+
+        match html[i].as_rule() {
+            Rule::element => root = parse_pair(html[i].clone())?,
+            _ => return Err(invalid_html()),
+        }
+
         Ok(Document::Quirks(root))
     }
 }
 
-fn parse_pair(pair: Pair<Rule>) -> Result<Node, Error<Rule>> {
+fn parse_pair(pair: Pair<Rule>) -> Result<Node, Error> {
     Ok(Node::Text("Shut up".to_string()))
 }
 
-fn parse_pairs(pairs: Pairs<Rule>) -> Result<Node, Error<Rule>> {
+fn parse_pairs(pairs: Pairs<Rule>) -> Result<Node, Error> {
     // println!("----------------------");
 
     // println!("pairs {:#?}", &pairs);
@@ -58,7 +64,9 @@ fn parse_pairs(pairs: Pairs<Rule>) -> Result<Node, Error<Rule>> {
 
                 Node::Element((
                     Element::new("foo", None),
-                    pair.into_inner().map(parse_pair).collect::<Result<Vec<Node>, Error<Rule>>>()?,
+                    pair.into_inner()
+                        .map(parse_pair)
+                        .collect::<Result<Vec<Node>, Error>>()?,
                 ))
             }
             Rule::text => {
