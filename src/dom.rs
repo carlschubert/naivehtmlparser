@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
-use std::fmt;
 use std::convert::AsRef;
+use std::fmt;
 
 pub trait Tree {
     fn tree(&self) -> Node;
@@ -8,14 +8,20 @@ pub trait Tree {
 
 pub enum Document {
     Strict((Node, Node)),
-    Quirks(Node)
+    Quirks(Node),
 }
 
 impl Tree for Document {
     fn tree(&self) -> Node {
         match self {
-            Document::Strict((d, e)) => Node::Element((Element::new("NaiveHTMLParserDocument".to_string(), None), vec![d.clone(), e.clone()])),
-            Document::Quirks(e) => Node::Element((Element::new("NaiveHTMLParserDocument".to_string(), None), vec![e.clone()])),
+            Document::Strict((d, e)) => Node::Element((
+                Element::new("NaiveHTMLParserDocument".to_string(), None),
+                vec![d.clone(), e.clone()],
+            )),
+            Document::Quirks(e) => Node::Element((
+                Element::new("NaiveHTMLParserDocument".to_string(), None),
+                vec![e.clone()],
+            )),
         }
     }
 }
@@ -28,6 +34,7 @@ pub enum Node {
     Doctype(String),
     Text(String),
     Element((Element, Nodes)),
+    ElementSingleton(Element),
     Comment(String),
 }
 
@@ -43,13 +50,14 @@ impl fmt::Debug for Node {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Node::Text(t) | Node::Comment(t) | Node::Doctype(t) => write!(f, "TextType: {}", t),
-            Node::Element((e, _)) => write!(f, "ElementType: {:?}", e),
+            Node::Element((e, _)) => write!(f, "Element: {:?}", e),
+            Node::ElementSingleton(e) => write!(f, "ElementSingleton: {:?}", e),
         }
     }
 }
 
 /*
-An element is has a tag and any number of Attrs.  For example a 'div' tag may have a 
+An element is has a tag and any number of Attrs.  For example a 'div' tag may have a
 class or id attr.
 */
 #[derive(Clone)]
@@ -61,7 +69,7 @@ pub struct Element {
 impl Element {
     pub fn new<T>(tag_name: T, attributes: Option<Attrs>) -> Element
     where
-        T: AsRef<str>
+        T: AsRef<str>,
     {
         Element {
             tag_name: tag_name.as_ref().to_string(),
@@ -97,7 +105,7 @@ impl fmt::Debug for Element {
 
 pub fn pretty_print<T>(n: &T, mut indent_size: usize)
 where
-    T: Tree
+    T: Tree,
 {
     let indent = (0..indent_size).map(|_| " ").collect::<String>();
 
@@ -112,6 +120,7 @@ where
                 pretty_print(child, indent_size);
             }
         }
+        Node::ElementSingleton(ref e) => println!("<{} />", e.tag_name),
         Node::Text(ref t) => println!("{}{}", indent, t),
         Node::Comment(ref c) => println!("{}<!--{}-->", indent, c),
     }

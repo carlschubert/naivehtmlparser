@@ -8,6 +8,5 @@ use self::html_parser::parse_html_file;
 
 use std::fs;
 
-
 #[cfg(test)]
 mod tests;
