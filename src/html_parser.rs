@@ -10,19 +10,34 @@ use pest::error::Error;
 #[grammar = "html.pest"]
 pub struct HTMLParser;
 
-pub fn parse_html_file(file: &str) -> Result<Node, Error<Rule>> {
-    let html = HTMLParser::parse(Rule::document, file)?;
-    // println!("{:#?}", html);
-    let nodes = parse_pairs(html);
-    // println!("{:#?}", nodes);
-    nodes
-}
-
-fn parse_document(pairs: Pairs<Rule>) -> Result<Document, Error<Rule>> {
-    Ok(Document::Strict((
-        Node::Doctype("html".to_string()),
-        Node::Element((Element::new("html", None), vec![])),
-    )))
+fn parse_document(file: &str) -> Result<Document, Error<Rule>> {
+    let html: Vec<Pair<Rule>> = HTMLParser::parse(Rule::document, file)?.collect();
+    if html.len() > 2 {
+        println!("Oops shouldn't happen");
+    }
+    let doctype: Node;
+    let root: Node;
+    let mut i = 0;
+    if html.len() == 2 {
+        match html[i].as_rule() {
+            Rule::doctype => doctype = Node::Doctype(html[i].as_str().to_string()),
+            _ => {
+                println!("Oops shouldn't happen");
+            }
+        }
+        i += 1;
+    }
+    match html[i].as_rule() {
+        Rule::element => root = parse_pair(html[i])?,
+        _ => {
+            println!("Oops shouldn't happen");
+        }
+    }
+    if html.len() == 2 {
+        Ok(Document::Strict((doctype, root)))
+    } else {
+        Ok(Document::Quirks(root))
+    }
 }
 
 fn parse_pair(pair: Pair<Rule>) -> Result<Node, Error<Rule>> {
