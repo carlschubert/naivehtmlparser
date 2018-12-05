@@ -9,5 +9,5 @@ fn main() {
 
     let _html: Document = parse_document(&unparsed_file).expect("unsuccessful parse");
 
-    // pretty_print(&html, 1)
+    pretty_print(&_html, 1)
 }
