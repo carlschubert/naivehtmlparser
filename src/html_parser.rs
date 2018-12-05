@@ -13,42 +13,38 @@ use errors::invalid_html;
 pub struct HTMLParser;
 
 pub fn parse_document(file: &str) -> Result<Document, Error> {
-    let html: Vec<Pair<Rule>> = HTMLParser::parse(Rule::document, file)?
+    let html = HTMLParser::parse(Rule::document, file)?
         .next()
         .unwrap()
         .into_inner()
-        .collect();
+        .enumerate();
 
-    if html.len() > 2 {
-        return Err(invalid_html());
-    }
+    let mut strict = false;
     let mut doctype: Node = Node::Doctype("html".to_string());
-    let root: Node;
-    let mut i = 0;
-    if html.len() == 2 {
-        match html[i].as_rule() {
-            Rule::doctype => doctype = Node::Doctype(html[i].as_str().to_string()),
+    let mut root: Node = Node::ElementSingleton(Element::new("html", None));
+    for (i, part) in html {
+        if i > 2 {
+            return Err(invalid_html());
+        }
+        match part.as_rule() {
+            Rule::doctype => {
+                strict = true;
+                doctype = Node::Doctype(part.as_str().to_string());
+            }
+            Rule::element => {
+                let mut inner = part.into_inner();
+                root = Node::Element((
+                    Element::new(inner.next().unwrap().as_str(), None),
+                    inner
+                        .filter(|p| p.as_rule() == Rule::element)
+                        .map(parse_pair)
+                        .collect::<Result<Vec<Node>, Error>>()?,
+                ))
+            }
             _ => return Err(invalid_html()),
         }
-
-        i += 1;
     }
-    match html[i].as_rule() {
-        Rule::element => {
-            root = Node::Element((
-                Element::new(html[i].clone().into_inner().next().unwrap().as_str(), None),
-                html[i]
-                    .clone()
-                    .into_inner()
-                    .filter(|p| p.as_rule() == Rule::element)
-                    .map(parse_pair)
-                    .collect::<Result<Vec<Node>, Error>>()?,
-            ))
-        }
-        _ => return Err(invalid_html()),
-    }
-
-    if html.len() == 2 {
+    if strict {
         Ok(Document::Strict((doctype, root)))
     } else {
         Ok(Document::Quirks(root))
