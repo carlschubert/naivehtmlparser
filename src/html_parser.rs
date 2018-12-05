@@ -29,12 +29,34 @@ pub fn parse_document(file: &str) -> Result<Document, Error> {
         match part.as_rule() {
             Rule::doctype => {
                 strict = true;
-                doctype = Node::Doctype(part.as_str().to_string());
+                doctype = Node::Doctype(
+                    part.into_inner()
+                        .next()
+                        .unwrap() // doctype_type
+                        .as_str()
+                        .to_string()
+                );
             }
             Rule::element => {
-                let mut inner = part.into_inner();
+                let mut inner = part
+                    .into_inner()
+                    .next()
+                    .unwrap() // tag
+                    .into_inner()
+                    .next()
+                    .unwrap() // insides
+                    .into_inner();
                 root = Node::Element((
-                    Element::new(inner.next().unwrap().as_str(), None),
+                    Element::new(
+                        inner
+                            .next()
+                            .unwrap() // opentag
+                            .into_inner()
+                            .next()
+                            .unwrap() // tagname
+                            .as_str(),
+                        None,
+                    ),
                     inner
                         .filter(|p| p.as_rule() == Rule::element)
                         .map(parse_pair)
