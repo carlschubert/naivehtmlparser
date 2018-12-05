@@ -1,7 +1,7 @@
 extern crate rust_bucket;
 
-use rust_bucket::dom::{Document, pretty_print};
-use rust_bucket::html_parser::{parse_document};
+use rust_bucket::dom::{pretty_print, Document};
+use rust_bucket::html_parser::parse_document;
 use std::fs;
 
 fn main() {

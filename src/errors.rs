@@ -1,8 +1,8 @@
 use html_parser::Rule;
+use pest;
 use std::convert::From;
 use std::error;
 use std::fmt;
-use pest;
 
 #[derive(Debug)]
 pub enum Error {

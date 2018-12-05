@@ -3,8 +3,8 @@ extern crate pest;
 extern crate pest_derive;
 
 pub mod dom;
-pub mod html_parser;
 pub mod errors;
+pub mod html_parser;
 
 #[cfg(test)]
 mod tests;
