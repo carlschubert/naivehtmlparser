@@ -36,7 +36,7 @@ single = {
 }
 
 single_tagname = {
-   "img"
+   "img" | "link"
 }
 
 tagname = @{
@@ -48,7 +48,7 @@ text = {
 }
 
 attr = {
-	WS* ~ attrname ~ "=" ~ "\"" ~ attrval ~ "\""
+	WS* ~ attrname ~ ("=" ~ "\"" ~ attrval ~ "\"")?
 }
 
 attrname = {

@@ -6,6 +6,7 @@ pub trait Tree {
     fn tree(&self) -> Node;
 }
 
+#[derive(Debug)]
 pub enum Document {
     Strict((Node, Node)),
     Quirks(Node),
@@ -29,7 +30,7 @@ impl Tree for Document {
 /*
 There are twelve different node types.  I will start with the most common.
 */
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Node {
     Doctype(String),
     Text(String),
@@ -46,15 +47,15 @@ impl Tree for Node {
 
 pub type Nodes = Vec<Node>;
 
-impl fmt::Debug for Node {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Node::Text(t) | Node::Comment(t) | Node::Doctype(t) => write!(f, "TextType: {}", t),
-            Node::Element((e, _)) => write!(f, "Element: {:?}", e),
-            Node::ElementSingleton(e) => write!(f, "ElementSingleton: {:?}", e),
-        }
-    }
-}
+// impl fmt::Debug for Node {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         match self {
+//             Node::Text(t) | Node::Comment(t) | Node::Doctype(t) => write!(f, "TextType: {}", t),
+//             Node::Element((e, _)) => write!(f, "Element: {:?}", e),
+//             Node::ElementSingleton(e) => write!(f, "ElementSingleton: {:?}", e),
+//         }
+//     }
+// }
 
 /*
 An element is has a tag and any number of Attrs.  For example a 'div' tag may have a
