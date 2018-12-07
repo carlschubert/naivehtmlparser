@@ -1,7 +1,7 @@
 document = {
-	doctype? ~ element
+	doctype? ~ node
 }
-element = {
+node = {
 	WS* ~ NL* ~ ( comment | tag | text )+ ~ WS* ~ NL* |
 	WS+ |
 	NL+
@@ -27,12 +27,16 @@ comment_content = {
 }
 
 tag = {
-	insides |
-	single
+    single |
+	opentag ~ nodes ~ closetag
 }
 
 single = {
-	"<" ~ tagname ~ attr* ~ WS* ~ "/"? ~ ">"
+	"<" ~ single_tagname ~ attr* ~ WS* ~ "/"? ~ ">"
+}
+
+single_tagname = {
+   "img"
 }
 
 tagname = @{
@@ -63,6 +67,6 @@ opentag = {
 	"<" ~ tagname ~ attr* ~ WS* ~ ">"
 }
 
-insides = {
-	opentag ~ element* ~ closetag
+nodes = {
+	node*
 }
