@@ -112,7 +112,7 @@ where
     match n.tree() {
         Node::Doctype(ref e) => println!("{}<!DOCTYPE {}>", indent, e),
         Node::Element(ref e) => {
-            if e.0.tag_name != "NaiveHTMLParserDocument" {
+            if e.0.tag_name != "NaiveHTMLParserDocument" && e.0.tag_name.len() > 0 {
                 println!("{}<{}>", indent, e.0.tag_name);
                 indent_size = indent_size + 2;
             }

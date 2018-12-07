@@ -79,7 +79,7 @@ fn parse_pair(pair: Pair<Rule>) -> Result<Node, Error> {
                                         )?,
                                     );
                                 }
-                                Rule::single => {}
+                                Rule::single => children.push(Node::ElementSingleton(Element::new(tagname, None))),
                                 _ => return Err(invalid_html()),
                             }
                         }
